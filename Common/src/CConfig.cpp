@@ -2908,6 +2908,30 @@ void CConfig::SetConfig_Options() {
   /*!\brief ROM_SAVE_FREQ \n DESCRIPTION: How often to save snapshots for unsteady problems.*/
   addUnsignedShortOption("ROM_SAVE_FREQ", rom_save_freq, 1);
 
+  /*!\brief SHOCK_TUBE_IC \n DESCRIPTION: Flag for setting discontinuous initial condition. */
+  addBoolOption("SHOCK_TUBE_IC", Shock_Tube_IC, false);
+
+  /*!\brief DENSITY_LEFT \n DESCRIPTION: Left density for shock tube IC. */
+  addDoubleOption("DENSITY_LEFT", Density_Left, 1.0);
+
+  /*!\brief DENSITY_RIGHT \n DESCRIPTION: Right density for shock tube IC. */
+  addDoubleOption("DENSITY_RIGHT", Density_Right, 0.125);
+
+  /*!\brief PRESSURE_LEFT \n DESCRIPTION: Left pressure for shock tube IC. */
+  addDoubleOption("PRESSURE_LEFT", Pressure_Left, 1.0);
+
+  /*!\brief PRESSURE_RIGHT \n DESCRIPTION: Right pressure for shock tube IC. */
+  addDoubleOption("PRESSURE_RIGHT", Pressure_Right, 0.1);
+
+  /*!\brief VELOCITYX_LEFT \n DESCRIPTION: Left velocity for shock tube IC. */
+  addDoubleOption("VELOCITYX_LEFT", VelocityX_Left, 1.0);
+
+  /*!\brief VELOCITYX_RIGHT \n DESCRIPTION: Right velocity for shock tube IC. */
+  addDoubleOption("VELOCITYX_RIGHT", VelocityX_Right, 0.1);
+
+  /*!\brief DIAPHRAGM_LOCATION \n DESCRIPTION: Diaphragm location for shock tube IC. */
+  addDoubleOption("DIAPHRAGM_LOCATION", Diaphragm_Location, 0.5);
+
   /* END_CONFIG_OPTIONS */
 
 }
