@@ -1549,8 +1549,25 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
         SU2_OMP_FOR_STAT(omp_chunk_size)
         for (iPoint = 0; iPoint < geometry[iMesh]->GetnPoint(); iPoint++) {
           Coord = geometry[iMesh]->nodes->GetCoord(iPoint);
+          if (Coord[0] <= dia_loc) {
+            // left of diaphragm
+            rho = rho_left;
+            p = p_left;
+            u = u_left;
+          }
+          else {
+            // right of diaphragm
+            rho = rho_right;
+            p = p_right;
+            u = u_right;
+          }
+          FlowNodes->SetSolution(iPoint, 0, rho);
+          FlowNodes->SetSolution(iPoint, 1, rho*u);
+          for (iDim=1; iDim<nDim; iDim++) FlowNodes->SetSolution(iPoint, iDim+1, 0);
+          FlowNodes->SetSolution(iPoint, nVar-1, p/Gamma_Minus_One + 0.5*rho*u*u);
         }
         END_SU2_OMP_FOR
+        FlowNodes->Set_OldSolution();
       }
     } // SU2_OMP_PARALLEL
   }
