@@ -1526,8 +1526,8 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
 
   if (Shock_Tube_IC) {
     SU2_OMP_PARALLEL {
-      unsigned long iPoint;
-      unsigned short iMesh, iDim;
+      unsigned long iPoint, iElem;
+      unsigned short iMesh, iDim, iPointLocal;
       su2double
         rho_left = config->Get_Density_Left(),
         rho_right = config->Get_Density_Right(),
@@ -1539,7 +1539,6 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
         rho,
         p,
         u,
-        *Coord,
         Gamma_Minus_One = Gamma - 1.0,
         Gas_Constant = config->GetGas_Constant();
       
@@ -1547,8 +1546,8 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
         auto FlowNodes = solver_container[iMesh][FLOW_SOL]->GetNodes();
 
         SU2_OMP_FOR_STAT(omp_chunk_size)
-        for (iPoint = 0; iPoint < geometry[iMesh]->GetnPoint(); iPoint++) {
-          Coord = geometry[iMesh]->nodes->GetCoord(iPoint);
+        for (iElem = 0; iElem < geometry[iMesh]->GetnElem(); iElem++) {
+          const su2double* Coord = geometry[iMesh]->elem[iElem]->GetCG();
           if (Coord[0] <= dia_loc) {
             // left of diaphragm
             rho = rho_left;
@@ -1561,10 +1560,13 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
             p = p_right;
             u = u_right;
           }
-          FlowNodes->SetSolution(iPoint, 0, rho);
-          FlowNodes->SetSolution(iPoint, 1, rho*u);
-          for (iDim=1; iDim<nDim; iDim++) FlowNodes->SetSolution(iPoint, iDim+1, 0);
-          FlowNodes->SetSolution(iPoint, nVar-1, p/Gamma_Minus_One + 0.5*rho*u*u);
+          for (iPointLocal=0; iPointLocal<geometry[iMesh]->elem[iElem]->GetnNodes(); iPointLocal++) {
+            iPoint = geometry[iMesh]->elem[iElem]->GetNode(iPointLocal);
+            FlowNodes->SetSolution(iPoint, 0, rho);
+            FlowNodes->SetSolution(iPoint, 1, rho*u);
+            for (iDim=1; iDim<nDim; iDim++) FlowNodes->SetSolution(iPoint, iDim+1, 0);
+            FlowNodes->SetSolution(iPoint, nVar-1, p/Gamma_Minus_One + 0.5*rho*u*u);
+          }
         }
         END_SU2_OMP_FOR
         FlowNodes->Set_OldSolution();
