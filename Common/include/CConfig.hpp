@@ -1215,6 +1215,17 @@ private:
   su2double* Species_Init;         /*!< \brief Initial uniform value for scalar transport. */
   unsigned short nSpecies_Init;    /*!< \brief Number of entries of SPECIES_INIT */
 
+  // options for shock tube initial condition (in x-direction)
+  bool Shock_Tube_IC; /*!< \brief Use shock tube initial condition. */
+  su2double
+    Density_Left,
+    Density_Right,
+    Pressure_Left,
+    Pressure_Right,
+    VelocityX_Left,
+    VelocityX_Right,
+    Diaphragm_Location;
+
   /*!
    * \brief Set the default values of config options not set in the config file using another config object.
    * \param config - Config object to use the default values from.
@@ -9725,4 +9736,43 @@ public:
    */
   LM_ParsedOptions GetLMParsedOptions() const { return lmParsedOptions; }
 
+  /*!
+   * \brief Get if shock tube IC is used or not.
+   */
+  bool Get_Shock_Tube_IC() const {return Shock_Tube_IC;}
+
+  /*!
+   * \brief Get left density for shock tube problem.
+   */
+  su2double Get_Density_Left() const {return Density_Left;}
+
+  /*!
+   * \brief Get right density for shock tube problem.
+   */
+  su2double Get_Density_Right() const {return Density_Right;}
+
+  /*!
+   * \brief Get left pressure for shock tube problem.
+   */
+  su2double Get_Pressure_Left() const {return Pressure_Left;}
+
+  /*!
+   * \brief Get right pressure for shock tube problem.
+   */
+  su2double Get_Pressure_Right() const {return Pressure_Right;}
+
+  /*!
+   * \brief Get left velocity for shock tube problem.
+   */
+  su2double Get_VelocityX_Left() const {return VelocityX_Left;}
+
+  /*!
+   * \brief Get right velocity for shock tube problem.
+   */
+  su2double Get_VelocityX_Right() const {return VelocityX_Right;}
+
+  /*!
+   * \brief Get the diaphragm location for shock tube problem.
+   */
+  su2double Get_Diaphragm_Location() const {return Diaphragm_Location;}
 };
