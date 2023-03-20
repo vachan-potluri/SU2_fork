@@ -1226,6 +1226,8 @@ private:
     VelocityX_Right,
     Diaphragm_Location;
 
+  bool Blast_Wave_IC;
+
   /*!
    * \brief Set the default values of config options not set in the config file using another config object.
    * \param config - Config object to use the default values from.
@@ -9775,4 +9777,9 @@ public:
    * \brief Get the diaphragm location for shock tube problem.
    */
   su2double Get_Diaphragm_Location() const {return Diaphragm_Location;}
+
+  /*!
+   * \brief Get if blast wave (Woodward & Colella 1984) IC is used or not.
+   */
+  bool Get_Blast_Wave_IC() const {return Blast_Wave_IC;}
 };

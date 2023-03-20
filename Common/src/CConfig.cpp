@@ -2932,6 +2932,9 @@ void CConfig::SetConfig_Options() {
   /*!\brief DIAPHRAGM_LOCATION \n DESCRIPTION: Diaphragm location for shock tube IC. */
   addDoubleOption("DIAPHRAGM_LOCATION", Diaphragm_Location, 0.5);
 
+  /*!\brief SHOCK_TUBE_IC \n DESCRIPTION: Flag for setting blast wave (Woodward & Colella 1984) initial condition. */
+  addBoolOption("BLAST_WAVE_IC", Blast_Wave_IC, false);
+
   /* END_CONFIG_OPTIONS */
 
 }

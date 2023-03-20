@@ -1404,6 +1404,7 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
   const bool restart = (config->GetRestart() || config->GetRestart_Flow());
   const bool SubsonicEngine = config->GetSubsonicEngine();
   const bool Shock_Tube_IC = config->Get_Shock_Tube_IC();
+  const bool Blast_Wave_IC = config->Get_Blast_Wave_IC();
 
   /*--- Use default implementation, then add solver-specifics. ---*/
 
@@ -1539,8 +1540,7 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
         rho,
         p,
         u,
-        Gamma_Minus_One = Gamma - 1.0,
-        Gas_Constant = config->GetGas_Constant();
+        Gamma_Minus_One = Gamma - 1.0;
       
       for (iMesh = 0; iMesh <= config->GetnMGLevels(); iMesh++) {
         auto FlowNodes = solver_container[iMesh][FLOW_SOL]->GetNodes();
@@ -1566,6 +1566,50 @@ void CEulerSolver::SetInitialCondition(CGeometry **geometry, CSolver ***solver_c
             FlowNodes->SetSolution(iPoint, 1, rho*u);
             for (iDim=1; iDim<nDim; iDim++) FlowNodes->SetSolution(iPoint, iDim+1, 0);
             FlowNodes->SetSolution(iPoint, nVar-1, p/Gamma_Minus_One + 0.5*rho*u*u);
+          }
+        }
+        END_SU2_OMP_FOR
+        FlowNodes->Set_OldSolution();
+      }
+    } // SU2_OMP_PARALLEL
+  }
+
+  if (Blast_Wave_IC) {
+    SU2_OMP_PARALLEL {
+      unsigned long iPoint, iElem;
+      unsigned short iMesh, iDim, iPointLocal;
+      su2double
+        dia1 = 0.1,
+        dia2 = 0.9,
+        p_left = 1000,
+        p_mid = 0.01,
+        p_right = 100,
+        p,
+        Gamma_Minus_One = Gamma - 1.0;
+      
+      for (iMesh = 0; iMesh <= config->GetnMGLevels(); iMesh++) {
+        auto FlowNodes = solver_container[iMesh][FLOW_SOL]->GetNodes();
+
+        SU2_OMP_FOR_STAT(omp_chunk_size)
+        for (iElem = 0; iElem < geometry[iMesh]->GetnElem(); iElem++) {
+          const su2double* Coord = geometry[iMesh]->elem[iElem]->GetCG();
+          if (Coord[0] <= dia1) {
+            // left
+            p = p_left;
+          }
+          else if (Coord[0] <= dia2) {
+            // middle
+            p = p_mid;
+          }
+          else {
+            // right
+            p = p_right;
+          }
+          for (iPointLocal=0; iPointLocal<geometry[iMesh]->elem[iElem]->GetnNodes(); iPointLocal++) {
+            iPoint = geometry[iMesh]->elem[iElem]->GetNode(iPointLocal);
+            FlowNodes->SetSolution(iPoint, 0, 1);
+            for (iDim=0; iDim<nDim; iDim++) FlowNodes->SetSolution(iPoint, iDim+1, 0);
+            FlowNodes->SetSolution(iPoint, nVar-1, p/Gamma_Minus_One);
           }
         }
         END_SU2_OMP_FOR
